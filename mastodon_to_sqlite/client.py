@@ -9,7 +9,7 @@ class MastodonAuth(AuthBase):
         self.access_token = access_token
 
     def __call__(self, r):
-        r.headers["authorization"] = "Bearer " + self.access_token
+        r.headers["authorization"] = f"Bearer {self.access_token}"
         return r
 
 
