@@ -34,7 +34,9 @@ def auth(auth):
     click.echo(
         f"Create a new application here: https://{mastodon_domain}/settings/applications/new"
     )
-    click.echo("Then navigate to newly created application and paste in the following:")
+    click.echo(
+        "Then navigate to newly created application and paste in the following:"
+    )
     click.echo("")
 
     access_token = click.prompt("Your access token")
@@ -55,7 +57,9 @@ def auth(auth):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
     default="auth.json",
     help="Path to auth.json token file",
 )
@@ -66,7 +70,9 @@ def verify_auth(auth):
     if service.verify_auth(auth) is True:
         click.echo("Successfully authenticated with the Mastodon server.")
     else:
-        click.echo("Failed to authenticated with the Mastodon server.", err=True)
+        click.echo(
+            "Failed to authenticated with the Mastodon server.", err=True
+        )
 
 
 @cli.command()
@@ -78,7 +84,9 @@ def verify_auth(auth):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
     default="auth.json",
     help="Path to auth.json token file",
 )
@@ -108,7 +116,9 @@ def followers(db_path, auth):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
     default="auth.json",
     help="Path to auth.json token file",
 )

@@ -7,11 +7,11 @@ from mastodon_to_sqlite.client import MastodonClient
 @responses.activate
 def test_mastodon_client__request():
     domain = "mastodon.example"
-    access_token = 'IAmAnAccessToken'
+    access_token = "IAmAnAccessToken"
 
     path = "accounts/verify_credentials"
 
-    url = f'https://{domain}/api/v1/{path}'
+    url = f"https://{domain}/api/v1/{path}"
 
     responses.add(
         responses.Response(method="GET", url=url),
@@ -26,24 +26,24 @@ def test_mastodon_client__request():
 @responses.activate
 def test_mastodon_client__request_paginated():
     domain = "mastodon.example"
-    access_token = 'IAmAnAccessToken'
+    access_token = "IAmAnAccessToken"
 
     path = "accounts/1234567890/followers"
 
-    url = f'https://{domain}/api/v1/{path}'
+    url = f"https://{domain}/api/v1/{path}"
 
     responses.add(
         responses.Response(
             method="GET",
             url=url,
-            headers={'Link': f'<{url}?max_id=9876543210>; rel="next"'},
+            headers={"Link": f'<{url}?max_id=9876543210>; rel="next"'},
         )
     )
     responses.add(
         responses.Response(
             method="GET",
             url=url,
-            headers={'Link': f'<{url}>; rel="previous"'},
+            headers={"Link": f'<{url}>; rel="previous"'},
             match=[matchers.query_string_matcher("max_id=9876543210")],
         )
     )

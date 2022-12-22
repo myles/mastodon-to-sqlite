@@ -63,7 +63,8 @@ def mastodon_client(auth_file_path: str) -> MastodonClient:
     auth = json.loads(raw_auth)
 
     return MastodonClient(
-        domain=auth["mastodon_domain"], access_token=auth["mastodon_access_token"]
+        domain=auth["mastodon_domain"],
+        access_token=auth["mastodon_access_token"],
     )
 
 
