@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.9]
+
+    steps:
+      - id: checkout
+        name: Checkout 🛎
+        uses: actions/checkout@v2
+
+      - id: setup-python
+        name: Setup Python ${{ matrix.python-version }} 🏗
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - id: setup-poetry
+        name: Setup Poetry 📝
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - id: get-cache-poetry-directory
+        name: Get poetry's cache directory 🔎
+        run: |
+          echo "::set-output name=dir::$(poetry config cache-dir)"
+
+      - id: cache-poetry-directory
+        name: Cache poetry 📦
+        uses: actions/cache@v3.0.11
+        with:
+          path: ${{ steps.get-cache-poetry-directory.outputs.dir }}
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+          restore-keys: ${{ runner.os }}-poetry-
+
+      - id: install-dependencies
+        name: Install dependencies 👨🏻‍💻
+        run: |
+          poetry install
+
+      - id: run-test
+        name: Run tests 🧪
+        run: |
+          poetry run pytest
