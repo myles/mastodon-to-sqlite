@@ -10,7 +10,7 @@ foo@bar:~$ pip install -e git+https://github.com/myles/mastodon-to-sqlite.git#eg
 
 ## Authentication
 
-First you will need to create an application on your Mastodon server. You 
+First you will need to create an application on your Mastodon server. You
 can find that on your Mastodon serer.
 
 ```console
@@ -23,7 +23,7 @@ Then navigate to newly created application and paste in the following:
 Your access token: xxx
 ```
 
-You can verify that your authentication by running `mastodon-to-sqlite 
+You can verify that your authentication by running `mastodon-to-sqlite
 verify-auth`.
 
 ## Retrieving Mastodon followers
