@@ -54,9 +54,14 @@ def build_database(db: Database):
 
     if "statuses" not in table_names:
         db["statuses"].create(
-            columns={"id": int, "account_id": int, "content": str, "created_at": str},
+            columns={
+                "id": int,
+                "account_id": int,
+                "content": str,
+                "created_at": str,
+            },
             pk=("id",),
-            foreign_keys=(("account_id", "accounts", "id"),)
+            foreign_keys=(("account_id", "accounts", "id"),),
         )
 
     statuses_indexes = {tuple(i.columns) for i in db["statuses"].indexes}
@@ -198,9 +203,7 @@ def transformer_statuses(status: Dict[str, Any]):
     account = status.pop("account")
 
     to_remove = [
-        k
-        for k in status.keys()
-        if k not in ("id", "created_at", "content")
+        k for k in status.keys() if k not in ("id", "created_at", "content")
     ]
     for key in to_remove:
         del status[key]
