@@ -43,3 +43,12 @@ followings.
 ```console
 foo@bar:~$ mastodon-to-sqlite followings mastodon.db
 ```
+
+## Retrieving Mastodon statuses
+
+The `statuses` command will retrieve all the details about your Mastodon 
+statuses.
+
+```console
+foo@bar:~$ mastodon-to-sqlite statuses mastodon.db
+```
