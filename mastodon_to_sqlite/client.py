@@ -68,3 +68,8 @@ class MastodonClient:
         self, account_id: str
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
         return self.request_paginated("GET", f"accounts/{account_id}/following")
+
+    def accounts_statuses(
+        self, account_id: str
+    ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
+        return self.request_paginated("GET", f"accounts/{account_id}/statuses")

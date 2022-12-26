@@ -24,7 +24,7 @@ def build_database(db: Database):
     if "accounts" not in table_names:
         db["accounts"].create(
             columns={
-                "id": str,
+                "id": int,
                 "username": str,
                 "url": str,
                 "display_name": str,
@@ -51,6 +51,17 @@ def build_database(db: Database):
         db["following"].create_index(["followed_id"])
     if ("follower_id",) not in following_indexes:
         db["following"].create_index(["follower_id"])
+
+    if "statuses" not in table_names:
+        db["statuses"].create(
+            columns={"id": int, "account_id": int, "content": str, "created_at": str},
+            pk=("id",),
+            foreign_keys=(("account_id", "accounts", "id"),)
+        )
+
+    statuses_indexes = {tuple(i.columns) for i in db["statuses"].indexes}
+    if ("account_id",) not in statuses_indexes:
+        db["statuses"].create_index(["account_id"])
 
 
 def mastodon_client(auth_file_path: str) -> MastodonClient:
@@ -82,13 +93,16 @@ def verify_auth(auth_file_path: str) -> bool:
     return False
 
 
-def get_account_id(client: MastodonClient) -> str:
+def get_authenticated_account(client: MastodonClient) -> Dict[str, Any]:
     """
-    Returns the authenticated user's ID.
+    Returns the authenticated user's account and if the db is provided insert
+    the account.
     """
     _, response = client.accounts_verify_credentials()
     response.raise_for_status()
-    return response.json()["id"]
+    account = response.json()
+
+    return account
 
 
 def get_followers(
@@ -113,7 +127,7 @@ def get_followings(
 
 def transformer_account(account: Dict[str, Any]):
     """
-    Transformer a Mastodon account so it can be safely saved to the SQLite
+    Transformer a Mastodon account, so it can be safely saved to the SQLite
     database.
     """
     to_remove = [
@@ -123,6 +137,14 @@ def transformer_account(account: Dict[str, Any]):
     ]
     for key in to_remove:
         del account[key]
+
+
+def save_account(db: Database, account: Dict[str, Any]):
+    """
+    Save an individual Mastodon Account to the SQLite database.
+    """
+    transformer_account(account)
+    db["accounts"].insert(account, pk="id", alter=True, replace=True)
 
 
 def save_accounts(
@@ -156,3 +178,43 @@ def save_accounts(
             ),
             ignore=True,
         )
+
+
+def get_statuses(
+    account_id: str, client: MastodonClient
+) -> Generator[List[Dict[str, Any]], None, None]:
+    """
+    Get authenticated account's statuses.
+    """
+    for request, response in client.accounts_statuses(account_id):
+        yield response.json()
+
+
+def transformer_statuses(status: Dict[str, Any]):
+    """
+    Transformer a Mastodon status, so it can be safely saved to the SQLite
+    database.
+    """
+    account = status.pop("account")
+
+    to_remove = [
+        k
+        for k in status.keys()
+        if k not in ("id", "created_at", "content")
+    ]
+    for key in to_remove:
+        del status[key]
+
+    status["account_id"] = account["id"]
+
+
+def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
+    """
+    Save Mastodon Statuses to the SQLite database.
+    """
+    build_database(db)
+
+    for status in statuses:
+        transformer_statuses(status)
+
+    db["statuses"].insert_all(statuses, pk="id", alter=True, replace=True)

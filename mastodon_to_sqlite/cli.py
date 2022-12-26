@@ -96,7 +96,11 @@ def followers(db_path, auth):
     """
     db = service.open_database(db_path)
     client = service.mastodon_client(auth)
-    account_id = service.get_account_id(client)
+
+    authenticated_account = service.get_authenticated_account(client)
+    account_id = authenticated_account["id"]
+
+    service.save_account(db, authenticated_account)
 
     with click.progressbar(
         service.get_followers(account_id, client),
@@ -128,7 +132,11 @@ def followings(db_path, auth):
     """
     db = service.open_database(db_path)
     client = service.mastodon_client(auth)
-    account_id = service.get_account_id(client)
+
+    authenticated_account = service.get_authenticated_account(client)
+    account_id = authenticated_account["id"]
+
+    service.save_account(db, authenticated_account)
 
     with click.progressbar(
         service.get_followings(account_id, client),
@@ -137,3 +145,39 @@ def followings(db_path, auth):
     ) as bar:
         for followers in bar:
             service.save_accounts(db, followers, followed_id=account_id)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def statuses(db_path, auth):
+    """
+    Save statuses for the authenticated user.
+    """
+    db = service.open_database(db_path)
+    client = service.mastodon_client(auth)
+
+    authenticated_account = service.get_authenticated_account(client)
+    account_id = authenticated_account["id"]
+
+    service.save_account(db, authenticated_account)
+
+    with click.progressbar(
+        service.get_statuses(account_id, client),
+        label="Importing statuses",
+        show_pos=True,
+    ) as bar:
+        for statuses in bar:
+            service.save_statuses(db, statuses)
