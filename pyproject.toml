@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "mastodon-to-sqlite"
 version = "0.1.0"
-description = ""
+description = "Save data from Mastodon to a SQLite database"
 authors = ["Myles Braithwaite <me@mylesbraithwaite.com>"]
 
 [tool.poetry.dependencies]
