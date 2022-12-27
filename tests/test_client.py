@@ -8,19 +8,27 @@ from mastodon_to_sqlite.client import MastodonClient
 def test_mastodon_client__request():
     domain = "mastodon.example"
     access_token = "IAmAnAccessToken"
-
     path = "accounts/verify_credentials"
-
     url = f"https://{domain}/api/v1/{path}"
 
-    responses.add(
-        responses.Response(method="GET", url=url),
-    )
+    responses.add(responses.Response(method="GET", url=url))
 
     client = MastodonClient(domain=domain, access_token=access_token)
     client.request("GET", path)
 
     assert len(responses.calls) == 1
+    call = responses.calls[-1]
+
+    assert call.request.url == url
+
+    assert "Authorization" in call.request.headers
+    assert call.request.headers["Authorization"] == f"Bearer {access_token}"
+
+    assert "User-Agent" in call.request.headers
+    assert (
+        call.request.headers["User-Agent"]
+        == "mastodon-to-sqlite (+https://github.com/myles/mastodon-to-sqlite)"
+    )
 
 
 @responses.activate

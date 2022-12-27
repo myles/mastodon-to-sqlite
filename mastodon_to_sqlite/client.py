@@ -9,7 +9,7 @@ class MastodonAuth(AuthBase):
         self.access_token = access_token
 
     def __call__(self, r):
-        r.headers["authorization"] = f"Bearer {self.access_token}"
+        r.headers["Authorization"] = f"Bearer {self.access_token}"
         return r
 
 
@@ -19,6 +19,10 @@ class MastodonClient:
 
         self.session = Session()
         self.session.auth = MastodonAuth(access_token)
+
+        self.session.headers[
+            "User-Agent"
+        ] = "mastodon-to-sqlite (+https://github.com/myles/mastodon-to-sqlite)"
 
     def request(
         self, method: str, path: str, timeout: Tuple[int, int] = None, **kwargs
