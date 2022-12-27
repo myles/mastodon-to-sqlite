@@ -3,6 +3,10 @@ name = "mastodon-to-sqlite"
 version = "0.1.0"
 description = "Save data from Mastodon to a SQLite database"
 authors = ["Myles Braithwaite <me@mylesbraithwaite.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/myles/mastodon-to-sqlite"
+keywords = ["mastodon", "sqlite", "dogsheep"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
