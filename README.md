@@ -5,7 +5,7 @@ Save data from Mastodon to a SQLite database.
 ## Install
 
 ```console
-foo@bar:~$ pip install -e git+https://github.com/myles/mastodon-to-sqlite.git#egg=mastodon-to-sqlite
+foo@bar:~$ pip install mastodon-to-sqlite
 ```
 
 ## Authentication
