@@ -2,6 +2,7 @@ import responses
 from responses import matchers
 
 from mastodon_to_sqlite.client import MastodonClient
+
 from . import fixtures
 
 
@@ -12,7 +13,13 @@ def test_mastodon_client__request():
     path = "accounts/verify_credentials"
     url = f"https://{domain}/api/v1/{path}"
 
-    responses.add(responses.Response(method="GET", url=url, json=fixtures.ACCOUNT_ONE,))
+    responses.add(
+        responses.Response(
+            method="GET",
+            url=url,
+            json=fixtures.ACCOUNT_ONE,
+        )
+    )
 
     client = MastodonClient(domain=domain, access_token=access_token)
     client.request("GET", path)
