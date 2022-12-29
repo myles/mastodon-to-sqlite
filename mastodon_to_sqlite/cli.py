@@ -95,12 +95,12 @@ def followers(db_path, auth):
     Save followers for the authenticated user.
     """
     db = service.open_database(db_path)
-    client = service.mastodon_client(auth)
+    client = service.get_client(auth)
 
     authenticated_account = service.get_authenticated_account(client)
     account_id = authenticated_account["id"]
 
-    service.save_account(db, authenticated_account)
+    service.save_accounts(db, [authenticated_account])
 
     with click.progressbar(
         service.get_followers(account_id, client),
@@ -131,12 +131,12 @@ def followings(db_path, auth):
     Save followings for the authenticated user.
     """
     db = service.open_database(db_path)
-    client = service.mastodon_client(auth)
+    client = service.get_client(auth)
 
     authenticated_account = service.get_authenticated_account(client)
     account_id = authenticated_account["id"]
 
-    service.save_account(db, authenticated_account)
+    service.save_accounts(db, [authenticated_account])
 
     with click.progressbar(
         service.get_followings(account_id, client),
@@ -167,12 +167,12 @@ def statuses(db_path, auth):
     Save statuses for the authenticated user.
     """
     db = service.open_database(db_path)
-    client = service.mastodon_client(auth)
+    client = service.get_client(auth)
 
     authenticated_account = service.get_authenticated_account(client)
     account_id = authenticated_account["id"]
 
-    service.save_account(db, authenticated_account)
+    service.save_accounts(db, [authenticated_account])
 
     with click.progressbar(
         service.get_statuses(account_id, client),

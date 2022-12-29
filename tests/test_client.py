@@ -2,6 +2,7 @@ import responses
 from responses import matchers
 
 from mastodon_to_sqlite.client import MastodonClient
+from . import fixtures
 
 
 @responses.activate
@@ -11,7 +12,7 @@ def test_mastodon_client__request():
     path = "accounts/verify_credentials"
     url = f"https://{domain}/api/v1/{path}"
 
-    responses.add(responses.Response(method="GET", url=url))
+    responses.add(responses.Response(method="GET", url=url, json=fixtures.ACCOUNT_ONE,))
 
     client = MastodonClient(domain=domain, access_token=access_token)
     client.request("GET", path)
@@ -45,6 +46,7 @@ def test_mastodon_client__request_paginated():
             method="GET",
             url=url,
             headers={"Link": f'<{url}?max_id=9876543210>; rel="next"'},
+            json=fixtures.ACCOUNT_ONE,
         )
     )
     responses.add(
@@ -53,6 +55,7 @@ def test_mastodon_client__request_paginated():
             url=url,
             headers={"Link": f'<{url}>; rel="previous"'},
             match=[matchers.query_string_matcher("max_id=9876543210")],
+            json=fixtures.ACCOUNT_TWO,
         )
     )
 

@@ -1,4 +1,4 @@
-from typing import Generator, Optional, Tuple
+from typing import Generator, Optional, Tuple, Union
 
 from requests import PreparedRequest, Request, Response, Session
 from requests.auth import AuthBase
@@ -25,7 +25,11 @@ class MastodonClient:
         ] = "mastodon-to-sqlite (+https://github.com/myles/mastodon-to-sqlite)"
 
     def request(
-        self, method: str, path: str, timeout: Tuple[int, int] = None, **kwargs
+        self,
+        method: str,
+        path: str,
+        timeout: Optional[Tuple[int, int]] = None,
+        **kwargs,
     ) -> Tuple[PreparedRequest, Response]:
         full_url = f"{self.api_url}/{path}"
 
@@ -39,14 +43,14 @@ class MastodonClient:
         self,
         method: str,
         path: str,
-        timeout: Tuple[int, int] = None,
+        timeout: Optional[Tuple[int, int]] = None,
         **kwargs,
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
-        path: Optional[str] = path
+        next_path: Optional[str] = path
 
-        while path is not None:
+        while next_path is not None:
             request, response = self.request(
-                method=method, path=path, timeout=timeout, **kwargs
+                method=method, path=next_path, timeout=timeout, **kwargs
             )
             yield request, response
 
@@ -54,11 +58,11 @@ class MastodonClient:
             # next link, then we know there isn't pagination this endpoint or
             # there is no next page.
             if "Link" not in response.headers or "next" not in response.links:
-                path = None
+                next_path = None
                 continue
 
             next_url = response.links["next"]["url"]
-            path = next_url.replace(f"{self.api_url}/", "")
+            next_path = next_url.replace(f"{self.api_url}/", "")
 
     def accounts_verify_credentials(self) -> Tuple[PreparedRequest, Response]:
         return self.request("GET", "accounts/verify_credentials")

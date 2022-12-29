@@ -1,9 +1,9 @@
 import datetime
 import json
 from pathlib import Path
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, Generator, List, Optional
 
-from sqlite_utils import Database
+from sqlite_utils.db import Database, Table
 
 from .client import MastodonClient
 
@@ -15,14 +15,23 @@ def open_database(db_file_path) -> Database:
     return Database(db_file_path)
 
 
+def get_table(table_name: str, db: Database) -> Table:
+    """
+    Returns a Table from a given db Database object.
+    """
+    return Table(db=db, name=table_name)
+
+
 def build_database(db: Database):
     """
     Build the Mastodon SQLite database structure.
     """
-    table_names = set(db.table_names())
+    accounts_table = get_table("accounts", db=db)
+    following_table = get_table("following", db=db)
+    statuses_table = get_table("statuses", db=db)
 
-    if "accounts" not in table_names:
-        db["accounts"].create(
+    if accounts_table.exists() is False:
+        accounts_table.create(
             columns={
                 "id": int,
                 "username": str,
@@ -32,12 +41,12 @@ def build_database(db: Database):
             },
             pk="id",
         )
-        db["accounts"].enable_fts(
+        accounts_table.enable_fts(
             ["username", "display_name", "note"], create_triggers=True
         )
 
-    if "following" not in table_names:
-        db["following"].create(
+    if following_table.exists() is False:
+        following_table.create(
             columns={"followed_id": int, "follower_id": int, "first_seen": str},
             pk=("followed_id", "follower_id"),
             foreign_keys=(
@@ -46,14 +55,14 @@ def build_database(db: Database):
             ),
         )
 
-    following_indexes = {tuple(i.columns) for i in db["following"].indexes}
+    following_indexes = {tuple(i.columns) for i in following_table.indexes}
     if ("followed_id",) not in following_indexes:
-        db["following"].create_index(["followed_id"])
+        following_table.create_index(["followed_id"])
     if ("follower_id",) not in following_indexes:
-        db["following"].create_index(["follower_id"])
+        following_table.create_index(["follower_id"])
 
-    if "statuses" not in table_names:
-        db["statuses"].create(
+    if statuses_table.exists() is False:
+        statuses_table.create(
             columns={
                 "id": int,
                 "account_id": int,
@@ -63,13 +72,16 @@ def build_database(db: Database):
             pk=("id",),
             foreign_keys=(("account_id", "accounts", "id"),),
         )
+        statuses_table.enable_fts(
+            ["content"], create_triggers=True
+        )
 
-    statuses_indexes = {tuple(i.columns) for i in db["statuses"].indexes}
+    statuses_indexes = {tuple(i.columns) for i in statuses_table.indexes}
     if ("account_id",) not in statuses_indexes:
-        db["statuses"].create_index(["account_id"])
+        statuses_table.create_index(["account_id"])
 
 
-def mastodon_client(auth_file_path: str) -> MastodonClient:
+def get_client(auth_file_path: str) -> MastodonClient:
     """
     Returns a fully authenticated MastodonClient.
     """
@@ -88,7 +100,7 @@ def verify_auth(auth_file_path: str) -> bool:
     """
     Verify Mastodon authentication.
     """
-    client = mastodon_client(auth_file_path)
+    client = get_client(auth_file_path)
 
     _, response = client.accounts_verify_credentials()
 
@@ -138,25 +150,17 @@ def transformer_account(account: Dict[str, Any]):
     to_remove = [
         k
         for k in account.keys()
-        if k not in ("id", "username", "url", "display_url", "note")
+        if k not in ("id", "username", "url", "display_name", "note")
     ]
     for key in to_remove:
         del account[key]
 
 
-def save_account(db: Database, account: Dict[str, Any]):
-    """
-    Save an individual Mastodon Account to the SQLite database.
-    """
-    transformer_account(account)
-    db["accounts"].insert(account, pk="id", alter=True, replace=True)
-
-
 def save_accounts(
     db: Database,
     accounts: List[Dict[str, Any]],
-    followed_id: str = None,
-    follower_id: str = None,
+    followed_id: Optional[str] = None,
+    follower_id: Optional[str] = None,
 ):
     """
     Save Mastodon Accounts to the SQLite database.
@@ -164,15 +168,17 @@ def save_accounts(
     assert not (followed_id and follower_id)
 
     build_database(db)
+    accounts_table = get_table("accounts", db=db)
+    following_table = get_table("following", db=db)
 
     for account in accounts:
         transformer_account(account)
 
-    db["accounts"].insert_all(accounts, pk="id", alter=True, replace=True)
+    accounts_table.insert_all(accounts, pk="id", alter=True, replace=True)
 
-    if followed_id or follower_id:
+    if followed_id is not None or follower_id is not None:
         first_seen = datetime.datetime.utcnow().isoformat()
-        db["following"].insert_all(
+        following_table.insert_all(
             (
                 {
                     "followed_id": followed_id or account["id"],
@@ -195,7 +201,7 @@ def get_statuses(
         yield response.json()
 
 
-def transformer_statuses(status: Dict[str, Any]):
+def transformer_status(status: Dict[str, Any]):
     """
     Transformer a Mastodon status, so it can be safely saved to the SQLite
     database.
@@ -216,8 +222,9 @@ def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
     Save Mastodon Statuses to the SQLite database.
     """
     build_database(db)
+    statuses_table = get_table("statuses", db=db)
 
     for status in statuses:
-        transformer_statuses(status)
+        transformer_status(status)
 
-    db["statuses"].insert_all(statuses, pk="id", alter=True, replace=True)
+    statuses_table.insert_all(statuses, pk="id", alter=True, replace=True)

@@ -52,4 +52,4 @@ jobs:
       - id: run-test
         name: Run tests 🧪
         run: |
-          poetry run pytest
+          poetry run pytest --cov=mastodon_to_sqlite
