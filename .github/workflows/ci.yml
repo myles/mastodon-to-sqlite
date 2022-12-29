@@ -53,3 +53,14 @@ jobs:
         name: Run tests 🧪
         run: |
           poetry run pytest --cov=mastodon_to_sqlite
+
+      - id: run-linters
+        name: Run linters 🚨
+        run: |
+          poetry run black --check mastodon_to_sqlite tests
+          poetry run isort --check mastodon_to_sqlite tests
+
+      - id: run-typing
+        name: Run mypy 🏷
+        run: |
+          poetry run mypy .
