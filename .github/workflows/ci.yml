@@ -17,27 +17,27 @@ jobs:
 
     steps:
       - id: checkout
-        name: Checkout 🛎
+        name: "Checkout 🛎"
         uses: actions/checkout@v2
 
       - id: setup-python
-        name: Setup Python ${{ matrix.python-version }} 🏗
+        name: "Setup Python ${{ matrix.python-version }} 🏗"
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
 
       - id: setup-poetry
-        name: Setup Poetry 📝
+        name: "Setup Poetry 📝"
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
 
       - id: get-cache-poetry-directory
-        name: Get poetry's cache directory 🔎
+        name: "Get poetry's cache directory 🔎"
         run: |
           echo "::set-output name=dir::$(poetry config cache-dir)"
 
       - id: cache-poetry-directory
-        name: Cache poetry 📦
+        name: "Cache poetry 📦"
         uses: actions/cache@v3.0.11
         with:
           path: ${{ steps.get-cache-poetry-directory.outputs.dir }}
@@ -45,22 +45,21 @@ jobs:
           restore-keys: ${{ runner.os }}-poetry-
 
       - id: install-dependencies
-        name: Install dependencies 👨🏻‍💻
-        run: |
-          poetry install
+        name: "Install dependencies 👨🏻‍💻"
+        run: make setup
+
+      - id: poetry-lock
+        name: "Run poetry lock 📌"
+        run: poetry lock --check
 
       - id: run-test
-        name: Run tests 🧪
-        run: |
-          poetry run pytest --cov=mastodon_to_sqlite
+        name: "Run tests 🧪"
+        run: make test
 
       - id: run-linters
         name: Run linters 🚨
-        run: |
-          poetry run black --check .
-          poetry run isort --check .
+        run: make lint
 
       - id: run-typing
         name: Run mypy 🏷
-        run: |
-          poetry run mypy .
+        run: make mypy

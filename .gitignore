@@ -1,6 +1,9 @@
 *.db
 auth.json
 
+# macOS
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -154,6 +157,9 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# ruff
+.ruff_cache/
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

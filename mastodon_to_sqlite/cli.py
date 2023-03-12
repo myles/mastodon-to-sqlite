@@ -32,7 +32,8 @@ def auth(auth):
     click.echo("")
 
     click.echo(
-        f"Create a new application here: https://{mastodon_domain}/settings/applications/new"
+        f"Create a new application here:"
+        f" https://{mastodon_domain}/settings/applications/new"
     )
     click.echo(
         "Then navigate to newly created application and paste in the following:"

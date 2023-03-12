@@ -68,7 +68,7 @@ def test_transformer_status():
 
 def test_save_statuses(mock_db):
     status_one = fixtures.STATUS_ONE.copy()
-    status_two = fixtures.STATUS_ONE.copy()
+    status_two = fixtures.STATUS_TWO.copy()
 
     service.save_statuses(mock_db, [status_one, status_two])
 

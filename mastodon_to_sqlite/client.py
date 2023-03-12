@@ -1,4 +1,4 @@
-from typing import Generator, Optional, Tuple, Union
+from typing import Generator, Optional, Tuple
 
 from requests import PreparedRequest, Request, Response, Session
 from requests.auth import AuthBase
