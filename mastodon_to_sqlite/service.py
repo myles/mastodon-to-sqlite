@@ -69,7 +69,7 @@ def build_database(db: Database):
                 "content": str,
                 "created_at": str,
             },
-            pk=("id",),
+            pk="id",
             foreign_keys=(("account_id", "accounts", "id"),),
         )
         statuses_table.enable_fts(["content"], create_triggers=True)
@@ -172,11 +172,11 @@ def save_accounts(
     for account in accounts:
         transformer_account(account)
 
-    accounts_table.insert_all(accounts, pk="id", alter=True, replace=True)
+    accounts_table.upsert_all(accounts, pk="id")
 
     if followed_id is not None or follower_id is not None:
         first_seen = datetime.datetime.utcnow().isoformat()
-        following_table.insert_all(
+        following_table.upsert_all(
             (
                 {
                     "followed_id": followed_id or account["id"],
@@ -185,7 +185,6 @@ def save_accounts(
                 }
                 for account in accounts
             ),
-            ignore=True,
         )
 
 
@@ -225,4 +224,4 @@ def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
     for status in statuses:
         transformer_status(status)
 
-    statuses_table.insert_all(statuses, pk="id", alter=True, replace=True)
+    statuses_table.upsert_all(statuses, pk="id")

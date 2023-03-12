@@ -21,7 +21,10 @@ ACCOUNT_TWO = {
 STATUS_ONE = {
     "id": "1",
     "created_at": "2021-12-20T19:46:29.073Z",
-    "content": "I'm hanging the piñatas... They are all around you! Smash the piñatas!",
+    "content": (
+        "I'm hanging the piñatas... They are all around you! Smash the"
+        " piñatas!"
+    ),
     "account": ACCOUNT_ONE,
 }
 
