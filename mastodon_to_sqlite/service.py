@@ -185,7 +185,7 @@ def save_accounts(
                 }
                 for account in accounts
             ),
-            pk=("followed_id", "follower_id")
+            pk=("followed_id", "follower_id"),
         )
 
 
