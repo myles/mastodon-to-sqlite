@@ -182,3 +182,41 @@ def statuses(db_path, auth):
     ) as bar:
         for statuses in bar:
             service.save_statuses(db, statuses)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def bookmarks(db_path, auth):
+    """
+    Save bookmarks for the authenticated user.
+    """
+    db = service.open_database(db_path)
+    client = service.get_client(auth)
+
+    authenticated_account = service.get_authenticated_account(client)
+    account_id = authenticated_account["id"]
+
+    service.save_accounts(db, [authenticated_account])
+
+    with click.progressbar(
+        service.get_bookmarks(account_id, client),
+        label="Importing bookmarks",
+        show_pos=True,
+    ) as bar:
+        for bookmarks in bar:
+            accounts = [d["account"] for d in bookmarks]
+            service.save_accounts(db, accounts)
+            service.save_bookmarks(db, bookmarks)

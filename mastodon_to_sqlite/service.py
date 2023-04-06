@@ -226,3 +226,26 @@ def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
         transformer_status(status)
 
     statuses_table.upsert_all(statuses, pk="id")
+
+
+def get_bookmarks(
+    account_id: str, client: MastodonClient
+) -> Generator[List[Dict[str, Any]], None, None]:
+    """
+    Get authenticated account's bookmarks.
+    """
+    for request, response in client.bookmarks():
+        yield response.json()
+
+
+def save_bookmarks(db: Database, bookmarks: List[Dict[str, Any]]):
+    """
+    Save Mastodon Bookmarks to the SQLite database.
+    """
+    build_database(db)
+    statuses_table = get_table("statuses", db=db)
+
+    for bookmark in bookmarks:
+        transformer_status(bookmark)
+
+    statuses_table.upsert_all(bookmarks, pk="id")
