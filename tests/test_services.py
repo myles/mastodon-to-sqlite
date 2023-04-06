@@ -63,6 +63,8 @@ def test_transformer_status():
         "created_at": fixtures.STATUS_ONE["created_at"],
         "content": fixtures.STATUS_ONE["content"],
         "account_id": fixtures.STATUS_ONE["account"]["id"],
+        "bookmarked": fixtures.STATUS_ONE["bookmarked"],
+        "favourited": fixtures.STATUS_ONE["favourited"],
     }
 
 

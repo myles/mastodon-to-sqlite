@@ -26,6 +26,10 @@ STATUS_ONE = {
         " piñatas!"
     ),
     "account": ACCOUNT_ONE,
+    "bookmarked": False,
+    "favourited": True,
+    "replies_count": 1,
+    "reblogs_count": 3,
 }
 
 STATUS_TWO = {
@@ -33,4 +37,6 @@ STATUS_TWO = {
     "created_at": "2021-12-20T19:46:29.073Z",
     "content": "Sleds are for suckers! Just ride on my gut!",
     "account": ACCOUNT_TWO,
+    "bookmarked": True,
+    "favourited": False,
 }
