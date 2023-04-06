@@ -61,3 +61,13 @@ bookmarks.
 ```console
 foo@bar:~$ mastodon-to-sqlite bookmarks mastodon.db
 ```
+
+
+## Retrieving Mastodon favourites
+
+The `favourites` command will retrieve all the details about your Mastodon
+favourites.
+
+```console
+foo@bar:~$ mastodon-to-sqlite favourites mastodon.db
+```
