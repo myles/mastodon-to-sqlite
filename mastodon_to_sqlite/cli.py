@@ -110,6 +110,7 @@ def followers(db_path, auth):
     ) as bar:
         for followers in bar:
             service.save_accounts(db, followers, follower_id=account_id)
+            bar.pos = bar.pos + len(followers) - 1
 
 
 @cli.command()
@@ -146,6 +147,7 @@ def followings(db_path, auth):
     ) as bar:
         for followers in bar:
             service.save_accounts(db, followers, followed_id=account_id)
+            bar.pos = bar.pos + len(followers) - 1
 
 
 @cli.command()
@@ -182,6 +184,7 @@ def statuses(db_path, auth):
     ) as bar:
         for statuses in bar:
             service.save_statuses(db, statuses)
+            bar.pos = bar.pos + len(statuses) - 1
 
 
 @cli.command()
@@ -220,6 +223,7 @@ def bookmarks(db_path, auth):
             accounts = [d["account"] for d in bookmarks]
             service.save_accounts(db, accounts)
             service.save_statuses(db, bookmarks)
+            bar.pos = bar.pos + len(bookmarks) - 1
 
 
 @cli.command()
@@ -258,3 +262,4 @@ def favourites(db_path, auth):
             accounts = [d["account"] for d in favourites]
             service.save_accounts(db, accounts)
             service.save_statuses(db, favourites)
+            bar.pos = bar.pos + len(favourites) - 1
