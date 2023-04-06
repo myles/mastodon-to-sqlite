@@ -68,6 +68,9 @@ def build_database(db: Database):
                 "account_id": int,
                 "content": str,
                 "created_at": str,
+                "bookmarked": int,
+                "favourited": int,
+                "reblogged": int,
             },
             pk="id",
             foreign_keys=(("account_id", "accounts", "id"),),
@@ -206,9 +209,15 @@ def transformer_status(status: Dict[str, Any]):
     """
     account = status.pop("account")
 
-    to_remove = [
-        k for k in status.keys() if k not in ("id", "created_at", "content")
-    ]
+    to_keep = (
+        "id",
+        "created_at",
+        "content",
+        "bookmarked",
+        "favourited",
+        "reblogged",
+    )
+    to_remove = [k for k in status.keys() if k not in to_keep]
     for key in to_remove:
         del status[key]
 
