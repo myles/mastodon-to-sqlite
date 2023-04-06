@@ -245,3 +245,13 @@ def get_bookmarks(
     """
     for request, response in client.bookmarks():
         yield response.json()
+
+
+def get_favourites(
+    account_id: str, client: MastodonClient
+) -> Generator[List[Dict[str, Any]], None, None]:
+    """
+    Get authenticated account's favourites.
+    """
+    for request, response in client.favourites():
+        yield response.json()

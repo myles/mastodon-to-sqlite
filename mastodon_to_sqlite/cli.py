@@ -220,3 +220,41 @@ def bookmarks(db_path, auth):
             accounts = [d["account"] for d in bookmarks]
             service.save_accounts(db, accounts)
             service.save_statuses(db, bookmarks)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def favourites(db_path, auth):
+    """
+    Save favourites for the authenticated user.
+    """
+    db = service.open_database(db_path)
+    client = service.get_client(auth)
+
+    authenticated_account = service.get_authenticated_account(client)
+    account_id = authenticated_account["id"]
+
+    service.save_accounts(db, [authenticated_account])
+
+    with click.progressbar(
+        service.get_favourites(account_id, client),
+        label="Importing favourites",
+        show_pos=True,
+    ) as bar:
+        for favourites in bar:
+            accounts = [d["account"] for d in favourites]
+            service.save_accounts(db, accounts)
+            service.save_statuses(db, favourites)

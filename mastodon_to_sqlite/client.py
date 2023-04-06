@@ -86,3 +86,8 @@ class MastodonClient:
         self,
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
         return self.request_paginated("GET", "bookmarks")
+
+    def favourites(
+        self,
+    ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
+        return self.request_paginated("GET", "favourites")
