@@ -219,4 +219,4 @@ def bookmarks(db_path, auth):
         for bookmarks in bar:
             accounts = [d["account"] for d in bookmarks]
             service.save_accounts(db, accounts)
-            service.save_bookmarks(db, bookmarks)
+            service.save_statuses(db, bookmarks)
