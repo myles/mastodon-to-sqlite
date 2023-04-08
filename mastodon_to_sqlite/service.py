@@ -78,6 +78,29 @@ def build_database(db: Database):
     if ("account_id",) not in statuses_indexes:
         statuses_table.create_index(["account_id"])
 
+    status_activities_table = get_table("status_activities", db=db)
+    if status_activities_table.exists() is False:
+        status_activities_table.create(
+            columns={
+                "account_id": int,
+                "activity": str,  # favourited, bookmarked
+                "status_id": int,
+            },
+            pk=("account_id", "activity", "status_id"),
+            foreign_keys=(
+                ("account_id", "accounts", "id"),
+                ("status_id", "statuses", "id"),
+            ),
+        )
+
+    status_activities_indexes = {
+        tuple(i.columns) for i in status_activities_table.indexes
+    }
+    if ("account_id", "activity") not in status_activities_indexes:
+        status_activities_table.create_index(["account_id", "activity"])
+    if ("status_id", "activity") not in status_activities_indexes:
+        status_activities_table.create_index(["status_id", "activity"])
+
 
 def get_client(auth_file_path: str) -> MastodonClient:
     """
@@ -206,9 +229,12 @@ def transformer_status(status: Dict[str, Any]):
     """
     account = status.pop("account")
 
-    to_remove = [
-        k for k in status.keys() if k not in ("id", "created_at", "content")
-    ]
+    to_keep = (
+        "id",
+        "created_at",
+        "content",
+    )
+    to_remove = [k for k in status.keys() if k not in to_keep]
     for key in to_remove:
         del status[key]
 
@@ -226,3 +252,49 @@ def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
         transformer_status(status)
 
     statuses_table.upsert_all(statuses, pk="id")
+
+
+def get_bookmarks(
+    account_id: str, client: MastodonClient
+) -> Generator[List[Dict[str, Any]], None, None]:
+    """
+    Get authenticated account's bookmarks.
+    """
+    for request, response in client.bookmarks():
+        yield response.json()
+
+
+def get_favourites(
+    account_id: str, client: MastodonClient
+) -> Generator[List[Dict[str, Any]], None, None]:
+    """
+    Get authenticated account's favourites.
+    """
+    for request, response in client.favourites():
+        yield response.json()
+
+
+def save_activities(type: str, db: Database, statuses: List[Dict[str, Any]]):
+    """
+    Save Mastodon activities to the SQLite database.
+    """
+    build_database(db)
+    statuses_table = get_table("statuses", db=db)
+    status_activities_table = get_table("status_activities", db=db)
+
+    for status in statuses:
+        transformer_status(status)
+
+    statuses_table.upsert_all(statuses, pk="id")
+
+    status_activities_table.upsert_all(
+        (
+            {
+                "account_id": status["account_id"],
+                "activity": type,
+                "status_id": status["id"],
+            }
+            for status in statuses
+        ),
+        pk=("account_id", "activity", "status_id"),
+    )
