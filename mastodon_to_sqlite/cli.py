@@ -40,7 +40,7 @@ def auth(auth):
     )
     click.echo("")
 
-    access_token = click.prompt("Your access token")
+    access_token = click.prompt("Your access token").strip()
 
     auth_file_content = json.dumps(
         {
