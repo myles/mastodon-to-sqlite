@@ -88,24 +88,34 @@ class MastodonClient:
     def accounts_followers(
         self, account_id: str
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
-        return self.request_paginated("GET", f"accounts/{account_id}/followers")
+        return self.request_paginated(
+            "GET", f"accounts/{account_id}/followers", params={"limit": "80"}
+        )
 
     def accounts_following(
         self, account_id: str
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
-        return self.request_paginated("GET", f"accounts/{account_id}/following")
+        return self.request_paginated(
+            "GET", f"accounts/{account_id}/following", params={"limit": "80"}
+        )
 
     def accounts_statuses(
         self, account_id: str
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
-        return self.request_paginated("GET", f"accounts/{account_id}/statuses")
+        return self.request_paginated(
+            "GET", f"accounts/{account_id}/statuses", params={"limit": "40"}
+        )
 
     def bookmarks(
         self,
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
-        return self.request_paginated("GET", "bookmarks")
+        return self.request_paginated(
+            "GET", "bookmarks", params={"limit": "40"}
+        )
 
     def favourites(
         self,
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
-        return self.request_paginated("GET", "favourites")
+        return self.request_paginated(
+            "GET", "favourites", params={"limit": "40"}
+        )
