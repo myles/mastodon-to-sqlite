@@ -1,4 +1,4 @@
-from typing import Generator, Optional, Tuple
+from typing import Dict, Generator, Optional, Tuple
 
 from requests import PreparedRequest, Request, Response, Session
 from requests.auth import AuthBase
@@ -28,12 +28,15 @@ class MastodonClient:
         self,
         method: str,
         path: str,
+        params: Optional[Dict[str, str]] = None,
         timeout: Optional[Tuple[int, int]] = None,
         **kwargs,
     ) -> Tuple[PreparedRequest, Response]:
         full_url = f"{self.api_url}/{path}"
 
-        request = Request(method=method.upper(), url=full_url, **kwargs)
+        request = Request(
+            method=method.upper(), url=full_url, params=params, **kwargs
+        )
         prepped = self.session.prepare_request(request)
         response = self.session.send(prepped, timeout=timeout)
 
@@ -43,6 +46,7 @@ class MastodonClient:
         self,
         method: str,
         path: str,
+        params: Optional[Dict[str, str]] = None,
         timeout: Optional[Tuple[int, int]] = None,
         **kwargs,
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
@@ -50,7 +54,11 @@ class MastodonClient:
 
         while next_path is not None:
             request, response = self.request(
-                method=method, path=next_path, timeout=timeout, **kwargs
+                method=method,
+                path=next_path,
+                timeout=timeout,
+                params=params,
+                **kwargs,
             )
             yield request, response
 
@@ -63,6 +71,10 @@ class MastodonClient:
 
             next_url = response.links["next"]["url"]
             next_path = next_url.replace(f"{self.api_url}/", "")
+
+            # Resetting the params because the next_path will provide the query
+            # parameters.
+            params = {}
 
     def accounts_verify_credentials(self) -> Tuple[PreparedRequest, Response]:
         return self.request("GET", "accounts/verify_credentials")
@@ -82,10 +94,17 @@ class MastodonClient:
         )
 
     def accounts_statuses(
-        self, account_id: str
+        self,
+        account_id: str,
+        since_id: Optional[str] = None,
     ) -> Generator[Tuple[PreparedRequest, Response], None, None]:
+        params = {"limit": "40"}
+
+        if since_id is not None:
+            params["since_id"] = since_id
+
         return self.request_paginated(
-            "GET", f"accounts/{account_id}/statuses", params={"limit": "40"}
+            "GET", f"accounts/{account_id}/statuses", params=params
         )
 
     def bookmarks(
