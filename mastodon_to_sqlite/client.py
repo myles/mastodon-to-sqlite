@@ -70,6 +70,9 @@ class MastodonClient:
                 next_path = None
                 continue
 
+            # If the Mastodon server is reporting rate limit remaining of one
+            # more call, then we should sleep until we are free to call again.
+            # See docs: <https://docs.joinmastodon.org/api/rate-limits/>
             if response.headers.get("X-RateLimit-Remaining") == "1":
                 reset_at = datetime.datetime.fromisoformat(
                     response.headers["X-RateLimit-Reset"]
