@@ -74,9 +74,7 @@ class MastodonClient:
                 reset_at = datetime.datetime.fromisoformat(
                     response.headers["X-RateLimit-Reset"]
                 )
-                reset_in_secs = (reset_at - get_utc_now()).seconds
-                # breakpoint()
-                sleep(reset_in_secs)
+                sleep((reset_at - get_utc_now()).seconds)
 
             next_url = response.links["next"]["url"]
             next_path = next_url.replace(f"{self.api_url}/", "")
