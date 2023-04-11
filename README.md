@@ -15,15 +15,20 @@ can find that on your Mastodon serer.
 
 ```console
 foo@bar:~$ mastodon-to-sqlite auth
-Mastodon domain: xxx
+Mastodon domain: mastodon.social
 
 Create a new application here: https://mastodon.social/settings/applications/new
 Then navigate to newly created application and paste in the following:
 
 Your access token: xxx
 ```
+This will write an `auth.json` file to your current directory containing your
+access token and Mastodon domain. Use `-a other-file.json` to save those
+credentials to a different location.
 
-You can verify that your authentication by running `mastodon-to-sqlite
+That `-a` option is supported by all other commands.
+
+You can verify your authentication by running `mastodon-to-sqlite
 verify-auth`.
 
 ## Retrieving Mastodon followers
