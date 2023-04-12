@@ -104,3 +104,12 @@ def test_save_multiple_activity_types(mock_db):
     assert mock_db["statuses"].count == 2
     assert mock_db["status_activities"].exists() is True
     assert mock_db["status_activities"].count == 4
+
+
+def test_extract_reblogs():
+    status_noreblog = fixtures.STATUS_TWO.copy()
+    status_reblog = fixtures.STATUS_REBLOG.copy()
+
+    reblogs = service.extract_reblogs([status_reblog, status_noreblog])
+
+    assert reblogs == [fixtures.STATUS_ONE]

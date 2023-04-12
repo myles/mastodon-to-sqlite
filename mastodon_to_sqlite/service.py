@@ -231,7 +231,7 @@ def extract_reblogs(statuses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     reblogs = []
     for status in statuses:
-        if isinstance(status["reblog"], dict):
+        if isinstance(status.get("reblog"), dict):
             reblogs.append(status["reblog"])
 
     if reblogs:

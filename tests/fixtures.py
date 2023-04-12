@@ -40,3 +40,13 @@ STATUS_TWO = {
     "bookmarked": True,
     "favourited": False,
 }
+
+STATUS_REBLOG = {
+    "id": "3",
+    "created_at": "2021-12-20T19:46:29.073Z",
+    "content": "",
+    "account": ACCOUNT_TWO,
+    "bookmarked": True,
+    "favourited": False,
+    "reblog": STATUS_ONE,
+}
