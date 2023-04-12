@@ -183,8 +183,12 @@ def statuses(db_path, auth):
         show_pos=True,
     ) as bar:
         for statuses in bar:
+            reblogs = service.extract_reblogs(statuses)
+            accounts = [d["account"] for d in reblogs]
+            service.save_accounts(db, accounts)
+            service.save_statuses(db, reblogs)
             service.save_statuses(db, statuses)
-            bar.pos = bar.pos + len(statuses) - 1
+            bar.pos = bar.pos + len(statuses) + len(reblogs) - 1
 
 
 @cli.command()

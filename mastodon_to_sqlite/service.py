@@ -68,6 +68,7 @@ def build_database(db: Database):
                 "account_id": int,
                 "content": str,
                 "created_at": str,
+                "reblog_of": int,
             },
             pk="id",
             foreign_keys=(("account_id", "accounts", "id"),),
@@ -222,23 +223,41 @@ def get_statuses(
         yield response.json()
 
 
+def extract_reblogs(statuses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Extract reblogs from a collection of Mastodon statuses.
+    """
+    reblogs = []
+    for status in statuses:
+        if isinstance(status["reblog"], dict):
+            reblogs.append(status["reblog"])
+
+    if reblogs:
+        reblogs.extend(extract_reblogs(reblogs))
+
+    return reblogs
+
+
 def transformer_status(status: Dict[str, Any]):
     """
     Transformer a Mastodon status, so it can be safely saved to the SQLite
     database.
     """
     account = status.pop("account")
+    reblog = status.pop("reblog", None)
 
     to_keep = (
         "id",
         "created_at",
         "content",
+        "reblog_of",
     )
     to_remove = [k for k in status.keys() if k not in to_keep]
     for key in to_remove:
         del status[key]
 
     status["account_id"] = account["id"]
+    status["reblog_of"] = reblog["id"] if reblog else None
 
 
 def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
