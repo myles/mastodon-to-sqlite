@@ -74,6 +74,7 @@ def build_database(db: Database):
             foreign_keys=(("account_id", "accounts", "id"),),
         )
         statuses_table.enable_fts(["content"], create_triggers=True)
+        statuses_table.add_foreign_key("reblog_of", "statuses", "id")
 
     statuses_indexes = {tuple(i.columns) for i in statuses_table.indexes}
     if ("account_id",) not in statuses_indexes:
