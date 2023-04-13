@@ -183,12 +183,8 @@ def statuses(db_path, auth):
         show_pos=True,
     ) as bar:
         for statuses in bar:
-            reblogs = service.extract_reblogs(statuses)
-            accounts = [d["account"] for d in reblogs]
-            service.save_accounts(db, accounts)
-            service.save_statuses(db, reblogs)
             service.save_statuses(db, statuses)
-            bar.pos = bar.pos + len(statuses) + len(reblogs) - 1
+            bar.pos = bar.pos + len(statuses) - 1
 
 
 @cli.command()
@@ -224,8 +220,6 @@ def bookmarks(db_path, auth):
         show_pos=True,
     ) as bar:
         for bookmarks in bar:
-            accounts = [d["account"] for d in bookmarks]
-            service.save_accounts(db, accounts)
             service.save_activities("bookmarked", db, bookmarks)
             bar.pos = bar.pos + len(bookmarks) - 1
 
@@ -263,7 +257,5 @@ def favourites(db_path, auth):
         show_pos=True,
     ) as bar:
         for favourites in bar:
-            accounts = [d["account"] for d in favourites]
-            service.save_accounts(db, accounts)
             service.save_activities("favourited", db, favourites)
             bar.pos = bar.pos + len(favourites) - 1

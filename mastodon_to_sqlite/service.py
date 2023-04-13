@@ -264,10 +264,15 @@ def transformer_status(status: Dict[str, Any]):
 
 def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
     """
-    Save Mastodon Statuses to the SQLite database.
+    Save Mastodon statuses and their accounts to the SQLite database.
     """
     build_database(db)
     statuses_table = get_table("statuses", db=db)
+
+    reblogs = extract_reblogs(statuses)
+    accounts = [d["account"] for d in reblogs]
+    save_accounts(db, accounts)
+    statuses.extend(reblogs)
 
     for status in statuses:
         transformer_status(status)
@@ -300,18 +305,12 @@ def save_activities(type: str, db: Database, statuses: List[Dict[str, Any]]):
     Save Mastodon activities to the SQLite database.
     """
     build_database(db)
-    statuses_table = get_table("statuses", db=db)
     status_activities_table = get_table("status_activities", db=db)
-
-    for status in statuses:
-        transformer_status(status)
-
-    statuses_table.upsert_all(statuses, pk="id")
 
     status_activities_table.upsert_all(
         (
             {
-                "account_id": status["account_id"],
+                "account_id": status["account"]["id"],
                 "activity": type,
                 "status_id": status["id"],
             }
@@ -319,3 +318,5 @@ def save_activities(type: str, db: Database, statuses: List[Dict[str, Any]]):
         ),
         pk=("account_id", "activity", "status_id"),
     )
+
+    save_statuses(db, statuses)
