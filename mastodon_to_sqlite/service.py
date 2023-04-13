@@ -68,15 +68,15 @@ def build_database(db: Database):
                 "account_id": int,
                 "content": str,
                 "created_at": str,
-                "reblog_of": int,
             },
             pk="id",
             foreign_keys=(("account_id", "accounts", "id"),),
         )
         statuses_table.enable_fts(["content"], create_triggers=True)
-        # https://github.com/simonw/sqlite-utils/pull/537
+    # Reblog support added after version v0.2.0
+    if statuses_table.columns_dict.get("reblog_of") is None:
+        statuses_table.add_column("reblog_of", int)
         statuses_table.add_foreign_key("reblog_of", "statuses", "id")
-
     statuses_indexes = {tuple(i.columns) for i in statuses_table.indexes}
     if ("account_id",) not in statuses_indexes:
         statuses_table.create_index(["account_id"])
