@@ -303,7 +303,9 @@ def get_favourites(
         yield response.json()
 
 
-def save_activities(type: str, db: Database, statuses: List[Dict[str, Any]]):
+def save_activities(
+    db: Database, account_id: str, type: str, statuses: List[Dict[str, Any]]
+):
     """
     Save Mastodon activities to the SQLite database.
     """
@@ -313,7 +315,7 @@ def save_activities(type: str, db: Database, statuses: List[Dict[str, Any]]):
     status_activities_table.upsert_all(
         (
             {
-                "account_id": status["account"]["id"],
+                "account_id": account_id,
                 "activity": type,
                 "status_id": status["id"],
             }

@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from mastodon_to_sqlite import service
 
 from . import fixtures
@@ -54,7 +56,7 @@ def test_save_accounts(mock_db):
 
 
 def test_transformer_status():
-    status = fixtures.STATUS_ONE.copy()
+    status = deepcopy(fixtures.STATUS_ONE)
 
     service.transformer_status(status)
 
@@ -68,25 +70,32 @@ def test_transformer_status():
 
 
 def test_save_statuses(mock_db):
-    status_one = fixtures.STATUS_ONE.copy()
-    status_two = fixtures.STATUS_TWO.copy()
+    status_reblog = deepcopy(fixtures.STATUS_REBLOG)
+    status_two = deepcopy(fixtures.STATUS_TWO)
 
-    service.save_statuses(mock_db, [status_one, status_two])
+    service.save_statuses(mock_db, [status_reblog, status_two])
 
     assert mock_db["statuses"].exists() is True
-    assert mock_db["statuses"].count == 2
+    assert mock_db["statuses"].count == 3
+    assert mock_db["accounts"].exists() is True
+    assert mock_db["accounts"].count == 2
 
 
 def test_save_activities(mock_db):
-    status_one = fixtures.STATUS_ONE.copy()
-    status_two = fixtures.STATUS_TWO.copy()
+    status_one = deepcopy(fixtures.STATUS_ONE)
+    status_two = deepcopy(fixtures.STATUS_TWO)
 
-    service.save_activities("bookmarked", mock_db, [status_one, status_two])
+    service.save_activities(
+        mock_db, "42", "bookmarked", [status_one, status_two]
+    )
 
     assert mock_db["statuses"].exists() is True
     assert mock_db["statuses"].count == 2
     assert mock_db["status_activities"].exists() is True
     assert mock_db["status_activities"].count == 2
+    for row in mock_db["status_activities"].rows:
+        assert row["activity"] == "bookmarked"
+        assert row["account_id"] == 42
 
 
 def test_save_multiple_activity_types(mock_db):
@@ -94,21 +103,29 @@ def test_save_multiple_activity_types(mock_db):
     status_two = fixtures.STATUS_TWO
 
     service.save_activities(
-        "bookmarked", mock_db, [status_one.copy(), status_two.copy()]
+        mock_db,
+        "42",
+        "bookmarked",
+        [deepcopy(status_one), deepcopy(status_two)],
     )
     service.save_activities(
-        "favourited", mock_db, [status_one.copy(), status_two.copy()]
+        mock_db,
+        "42",
+        "favourited",
+        [deepcopy(status_one), deepcopy(status_two)],
     )
 
     assert mock_db["statuses"].exists() is True
     assert mock_db["statuses"].count == 2
     assert mock_db["status_activities"].exists() is True
     assert mock_db["status_activities"].count == 4
+    for row in mock_db["status_activities"].rows:
+        assert row["account_id"] == 42
 
 
 def test_extract_reblogs():
-    status_noreblog = fixtures.STATUS_TWO.copy()
-    status_reblog = fixtures.STATUS_REBLOG.copy()
+    status_noreblog = deepcopy(fixtures.STATUS_TWO)
+    status_reblog = deepcopy(fixtures.STATUS_REBLOG)
 
     reblogs = service.extract_reblogs([status_reblog, status_noreblog])
 
