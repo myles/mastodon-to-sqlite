@@ -270,9 +270,10 @@ def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
     statuses_table = get_table("statuses", db=db)
 
     reblogs = extract_reblogs(statuses)
-    accounts = [d["account"] for d in reblogs]
-    save_accounts(db, accounts)
     statuses.extend(reblogs)
+
+    accounts = [d["account"] for d in statuses]
+    save_accounts(db, accounts)
 
     for status in statuses:
         transformer_status(status)
