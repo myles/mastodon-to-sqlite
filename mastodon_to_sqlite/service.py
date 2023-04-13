@@ -195,6 +195,8 @@ def save_accounts(
     accounts_table = get_table("accounts", db=db)
     following_table = get_table("following", db=db)
 
+    accounts_dict = {d["id"]: d for d in accounts}
+    accounts = list(accounts_dict.values())
     for account in accounts:
         transformer_account(account)
 
