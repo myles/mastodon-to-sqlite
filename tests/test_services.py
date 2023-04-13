@@ -80,12 +80,16 @@ def test_save_activities(mock_db):
     status_one = fixtures.STATUS_ONE.copy()
     status_two = fixtures.STATUS_TWO.copy()
 
-    service.save_activities("bookmarked", mock_db, [status_one, status_two])
+    service.save_activities(
+        mock_db, "42", "bookmarked", [status_one, status_two]
+    )
 
     assert mock_db["statuses"].exists() is True
     assert mock_db["statuses"].count == 2
     assert mock_db["status_activities"].exists() is True
     assert mock_db["status_activities"].count == 2
+    for row in mock_db["status_activities"].rows:
+        assert row["account_id"] == 42
 
 
 def test_save_multiple_activity_types(mock_db):
@@ -93,13 +97,15 @@ def test_save_multiple_activity_types(mock_db):
     status_two = fixtures.STATUS_TWO
 
     service.save_activities(
-        "bookmarked", mock_db, [status_one.copy(), status_two.copy()]
+        mock_db, "42", "bookmarked", [status_one.copy(), status_two.copy()]
     )
     service.save_activities(
-        "favourited", mock_db, [status_one.copy(), status_two.copy()]
+        mock_db, "42", "favourited", [status_one.copy(), status_two.copy()]
     )
 
     assert mock_db["statuses"].exists() is True
     assert mock_db["statuses"].count == 2
     assert mock_db["status_activities"].exists() is True
     assert mock_db["status_activities"].count == 4
+    for row in mock_db["status_activities"].rows:
+        assert row["account_id"] == 42
