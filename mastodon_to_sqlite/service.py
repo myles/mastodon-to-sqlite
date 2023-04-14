@@ -73,7 +73,10 @@ def build_database(db: Database):
             foreign_keys=(("account_id", "accounts", "id"),),
         )
         statuses_table.enable_fts(["content"], create_triggers=True)
-
+    # Reblog support added after version v0.2.0
+    if statuses_table.columns_dict.get("reblog_of") is None:
+        statuses_table.add_column("reblog_of", int)
+        statuses_table.add_foreign_key("reblog_of", "statuses", "id")
     statuses_indexes = {tuple(i.columns) for i in statuses_table.indexes}
     if ("account_id",) not in statuses_indexes:
         statuses_table.create_index(["account_id"])
@@ -192,6 +195,8 @@ def save_accounts(
     accounts_table = get_table("accounts", db=db)
     following_table = get_table("following", db=db)
 
+    accounts_dict = {d["id"]: d for d in accounts}
+    accounts = list(accounts_dict.values())
     for account in accounts:
         transformer_account(account)
 
@@ -222,31 +227,55 @@ def get_statuses(
         yield response.json()
 
 
+def extract_reblogs(statuses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Extract reblogs from a collection of Mastodon statuses.
+    """
+    reblogs = []
+    for status in statuses:
+        if isinstance(status.get("reblog"), dict):
+            reblogs.append(status["reblog"])
+
+    if reblogs:
+        reblogs.extend(extract_reblogs(reblogs))
+
+    return reblogs
+
+
 def transformer_status(status: Dict[str, Any]):
     """
     Transformer a Mastodon status, so it can be safely saved to the SQLite
     database.
     """
     account = status.pop("account")
+    reblog = status.pop("reblog", None)
 
     to_keep = (
         "id",
         "created_at",
         "content",
+        "reblog_of",
     )
     to_remove = [k for k in status.keys() if k not in to_keep]
     for key in to_remove:
         del status[key]
 
     status["account_id"] = account["id"]
+    status["reblog_of"] = reblog["id"] if reblog else None
 
 
 def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
     """
-    Save Mastodon Statuses to the SQLite database.
+    Save Mastodon statuses and their accounts to the SQLite database.
     """
     build_database(db)
     statuses_table = get_table("statuses", db=db)
+
+    reblogs = extract_reblogs(statuses)
+    statuses.extend(reblogs)
+
+    accounts = [d["account"] for d in statuses]
+    save_accounts(db, accounts)
 
     for status in statuses:
         transformer_status(status)
@@ -281,13 +310,7 @@ def save_activities(
     Save Mastodon activities to the SQLite database.
     """
     build_database(db)
-    statuses_table = get_table("statuses", db=db)
     status_activities_table = get_table("status_activities", db=db)
-
-    for status in statuses:
-        transformer_status(status)
-
-    statuses_table.upsert_all(statuses, pk="id")
 
     status_activities_table.upsert_all(
         (
@@ -300,3 +323,5 @@ def save_activities(
         ),
         pk=("account_id", "activity", "status_id"),
     )
+
+    save_statuses(db, statuses)

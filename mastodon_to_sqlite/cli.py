@@ -220,8 +220,6 @@ def bookmarks(db_path, auth):
         show_pos=True,
     ) as bar:
         for bookmarks in bar:
-            accounts = [d["account"] for d in bookmarks]
-            service.save_accounts(db, accounts)
             service.save_activities(db, account_id, "bookmarked", bookmarks)
             bar.pos = bar.pos + len(bookmarks) - 1
 
@@ -259,7 +257,5 @@ def favourites(db_path, auth):
         show_pos=True,
     ) as bar:
         for favourites in bar:
-            accounts = [d["account"] for d in favourites]
-            service.save_accounts(db, accounts)
-            service.save_activities(db, account_id, "favourited", bookmarks)
+            service.save_activities(db, account_id, "favourited", favourites)
             bar.pos = bar.pos + len(favourites) - 1
