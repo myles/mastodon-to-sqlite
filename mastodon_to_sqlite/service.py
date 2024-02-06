@@ -198,7 +198,7 @@ def save_accounts(
     accounts_table.upsert_all(accounts, pk="id")
 
     if followed_id is not None or follower_id is not None:
-        first_seen = datetime.datetime.utcnow().isoformat()
+        first_seen = datetime.datetime.now(datetime.UTC).isoformat()
         following_table.upsert_all(
             (
                 {
@@ -255,7 +255,7 @@ def save_statuses(db: Database, statuses: List[Dict[str, Any]]):
 
 
 def get_bookmarks(
-    account_id: str, client: MastodonClient
+    client: MastodonClient,
 ) -> Generator[List[Dict[str, Any]], None, None]:
     """
     Get authenticated account's bookmarks.
@@ -265,7 +265,7 @@ def get_bookmarks(
 
 
 def get_favourites(
-    account_id: str, client: MastodonClient
+    client: MastodonClient,
 ) -> Generator[List[Dict[str, Any]], None, None]:
     """
     Get authenticated account's favourites.
@@ -275,7 +275,7 @@ def get_favourites(
 
 
 def save_activities(
-    db: Database, account_id: str, type: str, statuses: List[Dict[str, Any]]
+    db: Database, account_id: str, activity: str, statuses: List[Dict[str, Any]]
 ):
     """
     Save Mastodon activities to the SQLite database.
@@ -293,7 +293,7 @@ def save_activities(
         (
             {
                 "account_id": account_id,
-                "activity": type,
+                "activity": activity,
                 "status_id": status["id"],
             }
             for status in statuses

@@ -215,7 +215,7 @@ def bookmarks(db_path, auth):
     service.save_accounts(db, [authenticated_account])
 
     with click.progressbar(
-        service.get_bookmarks(account_id, client),
+        service.get_bookmarks(client),
         label="Importing bookmarks",
         show_pos=True,
     ) as bar:
@@ -254,7 +254,7 @@ def favourites(db_path, auth):
     service.save_accounts(db, [authenticated_account])
 
     with click.progressbar(
-        service.get_favourites(account_id, client),
+        service.get_favourites(client),
         label="Importing favourites",
         show_pos=True,
     ) as bar:
