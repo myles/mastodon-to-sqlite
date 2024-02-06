@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mastodon-to-sqlite"
-version = "0.2.0"
+version = "0.2.1"
 description = "Save data from Mastodon to a SQLite database"
 authors = ["Myles Braithwaite <me@mylesbraithwaite.com>"]
 license = "Apache-2.0"
