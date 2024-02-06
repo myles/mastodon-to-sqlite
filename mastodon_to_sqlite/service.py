@@ -198,12 +198,7 @@ def save_accounts(
     accounts_table.upsert_all(accounts, pk="id")
 
     if followed_id is not None or follower_id is not None:
-        try:
-            first_seen = datetime.datetime.now(datetime.UTC).isoformat()
-        except AttributeError:
-            first_seen = datetime.datetime.now(
-                datetime.timezone.utc
-            ).isoformat()
+        first_seen = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         following_table.upsert_all(
             (

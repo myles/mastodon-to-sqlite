@@ -10,10 +10,7 @@ def get_utc_now() -> datetime.datetime:
     """
     Returns the current datetime in UTC.
     """
-    try:
-        return datetime.datetime.now(datetime.UTC)
-    except AttributeError:
-        return datetime.datetime.now(datetime.timezone.utc)
+    return datetime.datetime.now(datetime.timezone.utc)
 
 
 class MastodonAuth(AuthBase):
