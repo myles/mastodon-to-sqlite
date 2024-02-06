@@ -1,0 +1,26 @@
+{
+    "databases": {
+        "mastodon": {
+            "title": "Mastodon",
+            "tables": {
+                "accounts": {
+                    "label_column": "username",
+                    "plugins": {
+                        "datasette-render-html": {
+                            "columns": ["note"]
+                        }
+                    }
+                },
+                "following": {},
+                "statues": {
+                    "plugins": {
+                        "datasette-render-html": {
+                            "columns": ["content"]
+                        }
+                    }
+                },
+                "status_activities": {}
+            }
+        }
+    }
+}

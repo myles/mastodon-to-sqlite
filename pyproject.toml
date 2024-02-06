@@ -25,6 +25,10 @@ responses = "^0.22.0"
 ruff = "^0.0.254"
 types-requests = "^2.31.0.20240125"
 
+[tool.poetry.group.datasette.dependencies]
+datasette = "^0.64.6"
+datasette-render-html = "^1.0"
+
 [tool.poetry.scripts]
 mastodon-to-sqlite = "mastodon_to_sqlite.cli:cli"
 

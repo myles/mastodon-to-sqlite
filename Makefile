@@ -35,3 +35,16 @@ clean:
 	rm -f .coverage
 	rm -f coverage.xml
 	find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
+
+.PHONY: mastodon.db
+mastodon.db: auth.json
+	poetry run mastodon-to-sqlite verify-auth --auth $?
+	poetry run mastodon-to-sqlite followers $@ --auth $?
+	poetry run mastodon-to-sqlite followings $@ --auth $?
+	poetry run mastodon-to-sqlite statuses $@ --auth $?
+	poetry run mastodon-to-sqlite bookmarks $@ --auth $?
+	poetry run mastodon-to-sqlite favourites $@ --auth $?
+
+.PHONY: datasette
+datasette: mastodon.db
+	poetry run datasette serve $? --metadata metadata.json
