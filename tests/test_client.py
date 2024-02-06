@@ -84,7 +84,11 @@ def test_mastodon_client__request_paginated():
 
 @responses.activate
 def test_mastodon_client__request_paginated__rate_limit(mocker):
-    mock_now = datetime.datetime.utcnow()
+    try:
+        mock_now = datetime.datetime.now(datetime.UTC)
+    except AttributeError:
+        mock_now = datetime.datetime.now(datetime.timezone.utc)
+
     rate_limit_reset_at = mock_now + datetime.timedelta(
         hours=1, minutes=1, seconds=30
     )
