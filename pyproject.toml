@@ -15,7 +15,7 @@ requests = "^2.31.0"
 sqlite-utils = "^3.36"
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.12.0"
+black = ">=22.12,<25.0"
 isort = "^5.13.2"
 mypy = "^0.991"
 pytest = "^7.4.4"
