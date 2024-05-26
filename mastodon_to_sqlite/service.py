@@ -1,6 +1,7 @@
 import datetime
 import json
 from pathlib import Path
+import sqlite3
 from typing import Any, Dict, Generator, List, Optional
 
 from sqlite_utils.db import Database, Table
@@ -217,13 +218,24 @@ def save_accounts(
 
 
 def get_statuses(
-    account_id: str, client: MastodonClient
+    account_id: str, client: MastodonClient, since_id: Optional[str] = None
 ) -> Generator[List[Dict[str, Any]], None, None]:
     """
     Get authenticated account's statuses.
     """
-    for request, response in client.accounts_statuses(account_id):
+    for request, response in client.accounts_statuses(
+        account_id, since_id=since_id
+    ):
         yield response.json()
+
+
+def get_most_recent_status_id(db: Database):
+    try:
+        return db.execute(
+            "select id from statuses order by created_at desc limit 1"
+        ).fetchone()[0]
+    except (sqlite3.OperationalError, IndexError):
+        return None
 
 
 def transformer_status(status: Dict[str, Any]):
