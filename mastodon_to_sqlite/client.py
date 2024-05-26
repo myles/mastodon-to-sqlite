@@ -1,6 +1,6 @@
 import datetime
 from time import sleep
-from typing import Generator, Optional, Tuple
+from typing import Dict, Generator, Optional, Tuple
 
 from requests import PreparedRequest, Request, Response, Session
 from requests.auth import AuthBase
