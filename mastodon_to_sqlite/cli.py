@@ -165,7 +165,15 @@ def followings(db_path, auth):
     default="auth.json",
     help="Path to auth.json token file",
 )
-def statuses(db_path, auth):
+@click.option(
+    "-u",
+    "--update",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Update existing statuses",
+)
+def statuses(db_path, auth, update):
     """
     Save statuses for the authenticated user.
     """
@@ -177,8 +185,12 @@ def statuses(db_path, auth):
 
     service.save_accounts(db, [authenticated_account])
 
+    since_id = None
+    if update:
+        since_id = service.get_most_recent_status_id(db)
+
     with click.progressbar(
-        service.get_statuses(account_id, client),
+        service.get_statuses(account_id, client, since_id=since_id),
         label="Importing statuses",
         show_pos=True,
     ) as bar:

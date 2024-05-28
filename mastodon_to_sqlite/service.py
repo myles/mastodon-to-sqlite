@@ -217,12 +217,14 @@ def save_accounts(
 
 
 def get_statuses(
-    account_id: str, client: MastodonClient
+    account_id: str, client: MastodonClient, since_id: Optional[str] = None
 ) -> Generator[List[Dict[str, Any]], None, None]:
     """
     Get authenticated account's statuses.
     """
-    for request, response in client.accounts_statuses(account_id):
+    for request, response in client.accounts_statuses(
+        account_id, since_id=since_id
+    ):
         yield response.json()
 
 
@@ -307,3 +309,20 @@ def save_activities(
         ),
         pk=("account_id", "activity", "status_id"),
     )
+
+
+def get_most_recent_status_id(db: Database) -> Optional[int]:
+    """
+    Get the most recent status ID from the SQLite database.
+    """
+    table = get_table("statuses", db=db)
+
+    row = next(
+        table.rows_where(order_by="created_at desc", select="id", limit=1),
+        None,
+    )
+
+    if row is None:
+        return None
+
+    return row["id"]
