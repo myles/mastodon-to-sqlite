@@ -111,3 +111,16 @@ def test_save_multiple_activity_types(mock_db):
     assert mock_db["status_activities"].count == 4
     for row in mock_db["status_activities"].rows:
         assert row["account_id"] == 42
+
+
+def test_get_most_recent_status_id(mock_db):
+    result = service.get_most_recent_status_id(mock_db)
+    assert result is None
+
+    status_one = fixtures.STATUS_ONE.copy()
+    status_two = fixtures.STATUS_TWO.copy()
+
+    service.save_statuses(mock_db, [status_one, status_two])
+
+    result = service.get_most_recent_status_id(mock_db)
+    assert result == int(status_two["id"])

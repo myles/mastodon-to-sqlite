@@ -1,6 +1,5 @@
 import datetime
 import json
-import sqlite3
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional
 
@@ -229,15 +228,6 @@ def get_statuses(
         yield response.json()
 
 
-def get_most_recent_status_id(db: Database):
-    try:
-        return db.execute(
-            "select id from statuses order by created_at desc limit 1"
-        ).fetchone()[0]
-    except (sqlite3.OperationalError, IndexError):
-        return None
-
-
 def transformer_status(status: Dict[str, Any]):
     """
     Transformer a Mastodon status, so it can be safely saved to the SQLite
@@ -319,3 +309,20 @@ def save_activities(
         ),
         pk=("account_id", "activity", "status_id"),
     )
+
+
+def get_most_recent_status_id(db: Database) -> Optional[int]:
+    """
+    Get the most recent status ID from the SQLite database.
+    """
+    table = get_table("statuses", db=db)
+
+    row = next(
+        table.rows_where(order_by="created_at desc", select="id", limit=1),
+        None,
+    )
+
+    if row is None:
+        return None
+
+    return row["id"]
