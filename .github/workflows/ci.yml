@@ -38,7 +38,7 @@ jobs:
 
       - id: cache-poetry-directory
         name: "Cache poetry 📦"
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v4
         with:
           path: ${{ steps.get-cache-poetry-directory.outputs.dir }}
           key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
