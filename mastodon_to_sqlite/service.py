@@ -160,7 +160,7 @@ def get_followings(
     account_id: str, client: MastodonClient
 ) -> Generator[List[Dict[str, Any]], None, None]:
     """
-    Get authenticated account's followers.
+    Get accounts that the authenticated user is following.
     """
     for request, response in client.accounts_following(account_id):
         yield response.json()
@@ -168,7 +168,7 @@ def get_followings(
 
 def transformer_account(account: Dict[str, Any]):
     """
-    Transformer a Mastodon account, so it can be safely saved to the SQLite
+    Transform a Mastodon account so it can be safely saved to the SQLite
     database.
     """
     to_remove = [
@@ -230,7 +230,7 @@ def get_statuses(
 
 def transformer_status(status: Dict[str, Any]):
     """
-    Transformer a Mastodon status, so it can be safely saved to the SQLite
+    Transform a Mastodon status so it can be safely saved to the SQLite
     database.
     """
     account = status.pop("account")
