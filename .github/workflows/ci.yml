@@ -50,7 +50,7 @@ jobs:
 
       - id: poetry-lock
         name: "Run poetry lock 📌"
-        run: poetry lock --check
+        run: poetry check --lock
 
       - id: run-test
         name: "Run tests 🧪"
