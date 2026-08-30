@@ -11,7 +11,7 @@ foo@bar:~$ pip install mastodon-to-sqlite
 ## Authentication
 
 First you will need to create an application on your Mastodon server. You
-can find that on your Mastodon serer.
+can find that on your Mastodon server.
 
 ```console
 foo@bar:~$ mastodon-to-sqlite auth

@@ -71,8 +71,8 @@ def verify_auth(auth):
     if service.verify_auth(auth) is True:
         click.echo("Successfully authenticated with the Mastodon server.")
     else:
-        click.echo(
-            "Failed to authenticated with the Mastodon server.", err=True
+        raise click.ClickException(
+            "Failed to authenticate with the Mastodon server."
         )
 
 
